@@ -372,7 +372,7 @@ local function showOnly(name)
 end
 
 ----------------------------------------------------------------
--- TOGGLE BUTTON (PNG tabanlı, sürüklenebilir, animasyonlu)
+-- TOGGLE BUTTON (sürüklenebilir, animasyonlu, basit)
 ----------------------------------------------------------------
 local function buildToggleButton()
     if State.toggleButton then State.toggleButton:Destroy() end
@@ -386,168 +386,154 @@ local function buildToggleButton()
 
     local size = Config.BUTTON_SIZE
 
-    -- Gölge (tuşun arkasında)
-    local shadow = create("ImageLabel", {
-        Name = "Shadow",
-        Size = UDim2.new(0, size + 8, 0, size + 8),
-        Position = UDim2.new(0, 20, 0.4, 0),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        Position = UDim2.new(0, 24, 0.42, 4),
-        BackgroundTransparency = 1,
-        Image = "rbxassetid://5554236805",
-        ImageColor3 = Color3.fromRGB(0, 0, 0),
-        ImageTransparency = 0.5,
-        ScaleType = Enum.ScaleType.Slice,
-        SliceCenter = Rect.new(23, 23, 277, 277),
-        ZIndex = 99,
-    }, sg)
-
-    -- Tuş (ImageButton — PNG ile)
-    local btn = create("ImageButton", {
+    -- Tuş (basit siyah kare, kırmızı kenarlık)
+    local btn = create("TextButton", {
         Name = "Btn",
         Size = UDim2.new(0, size, 0, size),
-        Position = UDim2.new(0, 20, 0.4, 0),
+        Position = UDim2.new(0, 30, 0.4, 0),
         AnchorPoint = Vector2.new(0.5, 0.5),
-        BackgroundTransparency = 1,
-        Image = Config.BUTTON_ASSET,
-        ScaleType = Enum.ScaleType.Stretch,
+        BackgroundColor3 = Color3.fromRGB(20, 5, 5),
         AutoButtonColor = false,
+        Text = "",
         ZIndex = 100,
     }, sg)
+    corner(14); corner(14):Clone().Parent = btn
+    local btnStroke = stroke(Color3.fromRGB(200, 30, 30), 3)
+    btnStroke.Parent = btn
 
-    -- Kilitleme göstergesi (kilit simgesi, sadece kilitliyse görünür)
+    -- Noel şapkası
+    local hat = create("Frame", {
+        Size = UDim2.new(0.9, 0, 0.32, 0),
+        Position = UDim2.new(0.05, 0, 0.04, 0),
+        BackgroundColor3 = Color3.fromRGB(200, 30, 30),
+        ZIndex = 101,
+    }, btn)
+    corner(6); corner(6):Clone().Parent = hat
+    local hatBand = create("Frame", {
+        Size = UDim2.new(1, 0, 0.16, 0),
+        Position = UDim2.new(0, 0, 0.78, 0),
+        BackgroundColor3 = Color3.fromRGB(250, 250, 250),
+        ZIndex = 102,
+    }, hat)
+    local pompom = create("Frame", {
+        Size = UDim2.new(0, 12, 0, 12),
+        Position = UDim2.new(0.04, 0, -0.05, 0),
+        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        ZIndex = 103,
+    }, hat)
+    corner(6); corner(6):Clone().Parent = pompom
+
+    local logo = create("TextLabel", {
+        Size = UDim2.new(0.6, 0, 0.5, 0),
+        Position = UDim2.new(0.2, 0, 0.4, 0),
+        BackgroundTransparency = 1,
+        Text = "L",
+        TextColor3 = Color3.fromRGB(255, 200, 60),
+        Font = Enum.Font.GothamBlack,
+        TextScaled = true,
+        ZIndex = 102,
+    }, btn)
+
+    -- Lock ikonu
     local lockIcon = create("TextLabel", {
         Name = "LockIcon",
-        Size = UDim2.new(0, 24, 0, 24),
-        Position = UDim2.new(1, -28, 1, -28),
+        Size = UDim2.new(0, 22, 0, 22),
+        Position = UDim2.new(1, -24, 1, -24),
         AnchorPoint = Vector2.new(0.5, 0.5),
         BackgroundColor3 = Color3.fromRGB(180, 30, 30),
-        BackgroundTransparency = 0.15,
-        Text = "🔒",
+        Text = "",
         TextColor3 = Color3.new(1, 1, 1),
         Font = Enum.Font.GothamBold,
-        TextSize = 14,
         TextScaled = true,
         Visible = false,
         ZIndex = 105,
     }, btn)
-    corner(12); corner(12):Clone().Parent = lockIcon
-    create("UITextSizeConstraint", { MaxTextSize = 16 }, lockIcon)
+    corner(11); corner(11):Clone().Parent = lockIcon
     stroke(Color3.fromRGB(80, 0, 0), 1).Parent = lockIcon
 
-    -- "L" badge (küçük, tuşun sağ altında, premium/preview)
-    local badge = create("TextLabel", {
-        Name = "Badge",
-        Size = UDim2.new(0, 22, 0, 22),
-        Position = UDim2.new(0, -4, 0, -4),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        BackgroundColor3 = Color3.fromRGB(255, 200, 60),
-        Text = "L",
-        TextColor3 = Color3.fromRGB(120, 30, 0),
-        Font = Enum.Font.GothamBlack,
-        TextSize = 14,
-        TextScaled = true,
-        ZIndex = 105,
-    }, btn)
-    corner(11); corner(11):Clone().Parent = badge
-    stroke(Color3.fromRGB(180, 100, 0), 1).Parent = badge
-    create("UITextSizeConstraint", { MaxTextSize = 16 }, badge)
-
-    -- Tıklama alanı büyütücü (görünmez, tıklama kolaylığı için)
-    local hitArea = create("TextButton", {
-        Name = "HitArea",
-        Size = UDim2.new(1.4, 0, 1.4, 0),
-        Position = UDim2.new(-0.2, 0, -0.2, 0),
-        AnchorPoint = Vector2.new(0, 0),
-        BackgroundTransparency = 1,
-        Text = "",
-        ZIndex = 98,
-    }, btn)
-
-    -- Sürükleme & tıklama
+    -- ============ TIKLAMA & SÜRÜKLEME ============
+    -- En basit, en güvenilir yöntem: InputBegan/InputChanged/InputEnded
     local dragging = false
-    local moved = false
-    local dragStart, startPos
+    local dragStart = nil
+    local btnStartPos = nil
+    local didDrag = false
     local lastTap = 0
-    local pressTime = 0
 
-    local function onInputBegan(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+    local function toggleGui()
+        if not State.mainGui then
+            buildMainGui()
+        end
+        State.mainGui.Enabled = not State.mainGui.Enabled
+        if State.mainGui.Enabled then
+            if game.PlaceId ~= Config.PLACE_ID_MM2 then
+                showOnly("gameSelect")
+            else
+                showOnly("categories")
+            end
+        end
+    end
+
+    -- MOBILE için: Touch event'lerini direkt yakala
+    btn.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
-            moved = false
+            didDrag = false
             dragStart = input.Position
-            startPos = btn.Position
-            pressTime = tick()
-            -- Tıklama animasyonu (küçülme)
-            TweenService:Create(btn, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                Size = UDim2.new(0, size - 6, 0, size - 6)
-            }):Play()
-            -- Çift tık algılama
+            btnStartPos = btn.Position
+        end
+    end)
+
+    btn.InputChanged:Connect(function(input)
+        if dragging and not State.buttonLocked then
+            if input.UserInputType == Enum.UserInputType.MouseMovement
+                or input.UserInputType == Enum.UserInputType.Touch then
+                if dragStart and btnStartPos then
+                    local delta = input.Position - dragStart
+                    if delta.Magnitude > 10 then
+                        didDrag = true
+                        btn.Position = UDim2.new(
+                            btnStartPos.X.Scale, btnStartPos.X.Offset + delta.X,
+                            btnStartPos.Y.Scale, btnStartPos.Y.Offset + delta.Y
+                        )
+                    end
+                end
+            end
+        end
+    end)
+
+    btn.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
+            if not dragging then return end
+            local wasDragging = dragging
+            dragging = false
+            if not wasDragging then return end
+            -- Sürükleme yapıldıysa tıklama yok
+            if didDrag then
+                return
+            end
+            -- Çift tık algılama (0.35s içinde)
             local now = tick()
             if now - lastTap < 0.35 then
                 State.buttonLocked = not State.buttonLocked
                 lockIcon.Visible = State.buttonLocked
-                if State.buttonLocked then
-                    lockIcon.Text = "🔒"
-                else
-                    lockIcon.Text = ""
-                end
+                lockIcon.Text = State.buttonLocked and "🔒" or ""
+                lastTap = 0
+                return
             end
             lastTap = now
+            -- Tek tık = GUI aç/kapa
+            toggleGui()
         end
-    end
+    end)
 
-    local function onInputEnded(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            local wasDragging = dragging
-            dragging = false
-            -- Bounce animasyonu (büyüme)
-            TweenService:Create(btn, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-                Size = UDim2.new(0, size, 0, size)
-            }):Play()
-            -- Eğer sürükleme olmadıysa, tıklama
-            if wasDragging and not moved and (tick() - pressTime < 0.4) then
-                if State.mainGui and State.mainGui.Enabled then
-                    State.mainGui.Enabled = false
-                else
-                    if not State.mainGui then
-                        buildMainGui()
-                    end
-                    State.mainGui.Enabled = true
-                    -- Eğer oyun MM2 değilse uyar
-                    if game.PlaceId ~= Config.PLACE_ID_MM2 then
-                        showOnly("gameSelect")
-                    else
-                        showOnly("categories")
-                    end
-                end
-            end
-        end
-    end
-
-    btn.InputBegan:Connect(onInputBegan)
-    btn.InputEnded:Connect(onInputEnded)
-    hitArea.InputBegan:Connect(onInputBegan)
-    hitArea.InputEnded:Connect(onInputEnded)
-
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and not State.buttonLocked then
-            if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-                local delta = input.Position - dragStart
-                if delta.Magnitude > 5 then moved = true end
-                if moved then
-                    btn.Position = UDim2.new(
-                        startPos.X.Scale, startPos.X.Offset + delta.X,
-                        startPos.Y.Scale, startPos.Y.Offset + delta.Y
-                    )
-                    -- Gölge de tuşla beraber hareket eder
-                    shadow.Position = UDim2.new(
-                        startPos.X.Scale, startPos.X.Offset + delta.X + 4,
-                        startPos.Y.Scale, startPos.Y.Offset + delta.Y + 4
-                    )
-                end
-            end
-        end
+    -- PC için: MouseButton1Click (mobile'da çalışmaz, ama zarar vermez)
+    btn.MouseButton1Click:Connect(function()
+        if didDrag then return end
+        if tick() - lastTap < 0.35 then return end
+        lastTap = tick()
+        toggleGui()
     end)
 
     State.toggleButton = sg
