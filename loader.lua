@@ -372,92 +372,102 @@ local function showOnly(name)
 end
 
 ----------------------------------------------------------------
--- TOGGLE BUTTON (sürüklenebilir, animasyonlu, basit)
+-- TOGGLE BUTTON (RedzHub kalıbı: ImageButton + Drag treshold)
 ----------------------------------------------------------------
 local function buildToggleButton()
     if State.toggleButton then State.toggleButton:Destroy() end
-    local sg = create("ScreenGui", {
-        Name = "LapelToggle",
-        ResetOnSpawn = false,
-        ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-        IgnoreGuiInset = true,
-        DisplayOrder = 999,
-    }, CoreGui)
+    local sg = Instance.new("ScreenGui")
+    sg.Name = "LapelToggle"
+    sg.ResetOnSpawn = false
+    sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    sg.IgnoreGuiInset = true
+    sg.DisplayOrder = 999
+    sg.Parent = CoreGui
 
     local size = Config.BUTTON_SIZE
 
-    -- Tuş (basit siyah kare, kırmızı kenarlık)
-    local btn = create("TextButton", {
-        Name = "Btn",
-        Size = UDim2.new(0, size, 0, size),
-        Position = UDim2.new(0, 30, 0.4, 0),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        BackgroundColor3 = Color3.fromRGB(20, 5, 5),
-        AutoButtonColor = false,
-        Text = "",
-        ZIndex = 100,
-    }, sg)
-    corner(14); corner(14):Clone().Parent = btn
-    local btnStroke = stroke(Color3.fromRGB(200, 30, 30), 3)
-    btnStroke.Parent = btn
+    -- Ana ImageButton (PNG tuş)
+    local btn = Instance.new("ImageButton")
+    btn.Name = "Btn"
+    btn.Size = UDim2.new(0, size, 0, size)
+    btn.Position = UDim2.new(0, 50, 0.5, 0)
+    btn.AnchorPoint = Vector2.new(0.5, 0.5)
+    btn.BackgroundColor3 = Color3.fromRGB(20, 5, 5)
+    btn.BackgroundTransparency = 0
+    btn.Image = ""  -- boş (PNG yüklenmedi, fallback)
+    btn.ScaleType = Enum.ScaleType.Stretch
+    btn.AutoButtonColor = false
+    btn.ZIndex = 10
+    btn.Parent = sg
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 14)
+    local btnStroke = Instance.new("UIStroke", btn)
+    btnStroke.Color = Color3.fromRGB(200, 30, 30)
+    btnStroke.Thickness = 3
 
-    -- Noel şapkası
-    local hat = create("Frame", {
-        Size = UDim2.new(0.9, 0, 0.32, 0),
-        Position = UDim2.new(0.05, 0, 0.04, 0),
-        BackgroundColor3 = Color3.fromRGB(200, 30, 30),
-        ZIndex = 101,
-    }, btn)
-    corner(6); corner(6):Clone().Parent = hat
-    local hatBand = create("Frame", {
-        Size = UDim2.new(1, 0, 0.16, 0),
-        Position = UDim2.new(0, 0, 0.78, 0),
-        BackgroundColor3 = Color3.fromRGB(250, 250, 250),
-        ZIndex = 102,
-    }, hat)
-    local pompom = create("Frame", {
-        Size = UDim2.new(0, 12, 0, 12),
-        Position = UDim2.new(0.04, 0, -0.05, 0),
-        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-        ZIndex = 103,
-    }, hat)
-    corner(6); corner(6):Clone().Parent = pompom
+    -- Noel şapkası (görsel)
+    local hat = Instance.new("Frame")
+    hat.Size = UDim2.new(0.85, 0, 0.32, 0)
+    hat.Position = UDim2.new(0.075, 0, 0.08, 0)
+    hat.BackgroundColor3 = Color3.fromRGB(200, 30, 30)
+    hat.BorderSizePixel = 0
+    hat.ZIndex = 11
+    hat.Parent = btn
+    Instance.new("UICorner", hat).CornerRadius = UDim.new(0, 6)
 
-    local logo = create("TextLabel", {
-        Size = UDim2.new(0.6, 0, 0.5, 0),
-        Position = UDim2.new(0.2, 0, 0.4, 0),
-        BackgroundTransparency = 1,
-        Text = "L",
-        TextColor3 = Color3.fromRGB(255, 200, 60),
-        Font = Enum.Font.GothamBlack,
-        TextScaled = true,
-        ZIndex = 102,
-    }, btn)
+    local hatBand = Instance.new("Frame")
+    hatBand.Size = UDim2.new(1, 0, 0.18, 0)
+    hatBand.Position = UDim2.new(0, 0, 0.78, 0)
+    hatBand.BackgroundColor3 = Color3.fromRGB(250, 250, 250)
+    hatBand.BorderSizePixel = 0
+    hatBand.ZIndex = 12
+    hatBand.Parent = hat
 
-    -- Lock ikonu
-    local lockIcon = create("TextLabel", {
-        Name = "LockIcon",
-        Size = UDim2.new(0, 22, 0, 22),
-        Position = UDim2.new(1, -24, 1, -24),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        BackgroundColor3 = Color3.fromRGB(180, 30, 30),
-        Text = "",
-        TextColor3 = Color3.new(1, 1, 1),
-        Font = Enum.Font.GothamBold,
-        TextScaled = true,
-        Visible = false,
-        ZIndex = 105,
-    }, btn)
-    corner(11); corner(11):Clone().Parent = lockIcon
-    stroke(Color3.fromRGB(80, 0, 0), 1).Parent = lockIcon
+    local pompom = Instance.new("Frame")
+    pompom.Size = UDim2.new(0, 14, 0, 14)
+    pompom.Position = UDim2.new(0.04, 0, -0.1, 0)
+    pompom.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    pompom.BorderSizePixel = 0
+    pompom.ZIndex = 13
+    pompom.Parent = hat
+    Instance.new("UICorner", pompom).CornerRadius = UDim.new(1, 0)
 
-    -- ============ TIKLAMA & SÜRÜKLEME ============
-    -- En basit, en güvenilir yöntem: InputBegan/InputChanged/InputEnded
-    local dragging = false
+    local logo = Instance.new("TextLabel")
+    logo.Size = UDim2.new(0.55, 0, 0.45, 0)
+    logo.Position = UDim2.new(0.225, 0, 0.42, 0)
+    logo.BackgroundTransparency = 1
+    logo.Text = "L"
+    logo.TextColor3 = Color3.fromRGB(255, 200, 60)
+    logo.Font = Enum.Font.GothamBlack
+    logo.TextScaled = true
+    logo.ZIndex = 12
+    logo.Parent = btn
+
+    -- Kilit ikonu
+    local lockIcon = Instance.new("TextLabel")
+    lockIcon.Name = "LockIcon"
+    lockIcon.Size = UDim2.new(0, 22, 0, 22)
+    lockIcon.Position = UDim2.new(1, -6, 0, -6)
+    lockIcon.AnchorPoint = Vector2.new(0.5, 0.5)
+    lockIcon.BackgroundColor3 = Color3.fromRGB(180, 30, 30)
+    lockIcon.Text = "🔒"
+    lockIcon.TextColor3 = Color3.new(1, 1, 1)
+    lockIcon.Font = Enum.Font.GothamBold
+    lockIcon.TextScaled = true
+    lockIcon.Visible = false
+    lockIcon.ZIndex = 14
+    lockIcon.Parent = btn
+    Instance.new("UICorner", lockIcon).CornerRadius = UDim.new(1, 0)
+
+    -- ============================================
+    -- REDZHUB KALIBI: ImageButton + manual drag
+    -- ============================================
+    local dragToggle = false
+    local dragSpeed = 0
     local dragStart = nil
-    local btnStartPos = nil
-    local didDrag = false
+    local startPos = nil
     local lastTap = 0
+    local isDragging = false
+    local DRAG_THRESHOLD = 6  -- 6px altı = tıklama, üstü = sürükleme
 
     local function toggleGui()
         if not State.mainGui then
@@ -473,28 +483,28 @@ local function buildToggleButton()
         end
     end
 
-    -- MOBILE için: Touch event'lerini direkt yakala
     btn.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1
             or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            didDrag = false
+            dragToggle = true
+            isDragging = false
             dragStart = input.Position
-            btnStartPos = btn.Position
+            startPos = btn.Position
         end
     end)
 
     btn.InputChanged:Connect(function(input)
-        if dragging and not State.buttonLocked then
+        if dragToggle and not State.buttonLocked then
             if input.UserInputType == Enum.UserInputType.MouseMovement
                 or input.UserInputType == Enum.UserInputType.Touch then
-                if dragStart and btnStartPos then
+                if dragStart and startPos then
                     local delta = input.Position - dragStart
-                    if delta.Magnitude > 10 then
-                        didDrag = true
+                    if delta.Magnitude > DRAG_THRESHOLD then
+                        isDragging = true
+                        -- KRITIK: Delta'yı direkt position offset'e uygula
                         btn.Position = UDim2.new(
-                            btnStartPos.X.Scale, btnStartPos.X.Offset + delta.X,
-                            btnStartPos.Y.Scale, btnStartPos.Y.Offset + delta.Y
+                            startPos.X.Scale, startPos.X.Offset + delta.X,
+                            startPos.Y.Scale, startPos.Y.Offset + delta.Y
                         )
                     end
                 end
@@ -505,35 +515,25 @@ local function buildToggleButton()
     btn.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1
             or input.UserInputType == Enum.UserInputType.Touch then
-            if not dragging then return end
-            local wasDragging = dragging
-            dragging = false
-            if not wasDragging then return end
-            -- Sürükleme yapıldıysa tıklama yok
-            if didDrag then
+            if not dragToggle then return end
+            dragToggle = false
+            -- Eğer sürükleme yapıldıysa tıklama YOK
+            if isDragging then
+                isDragging = false
                 return
             end
-            -- Çift tık algılama (0.35s içinde)
+            -- Çift tık algılama
             local now = tick()
             if now - lastTap < 0.35 then
                 State.buttonLocked = not State.buttonLocked
                 lockIcon.Visible = State.buttonLocked
-                lockIcon.Text = State.buttonLocked and "🔒" or ""
                 lastTap = 0
                 return
             end
             lastTap = now
-            -- Tek tık = GUI aç/kapa
+            -- Tek tık = GUI toggle
             toggleGui()
         end
-    end)
-
-    -- PC için: MouseButton1Click (mobile'da çalışmaz, ama zarar vermez)
-    btn.MouseButton1Click:Connect(function()
-        if didDrag then return end
-        if tick() - lastTap < 0.35 then return end
-        lastTap = tick()
-        toggleGui()
     end)
 
     State.toggleButton = sg
