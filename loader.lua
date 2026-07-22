@@ -372,7 +372,8 @@ local function showOnly(name)
 end
 
 ----------------------------------------------------------------
--- TOGGLE BUTTON (RVIALS kalıbı: Draggable ana pencere, basit toggle)
+-- TOGGLE BUTTON + ANA GUI (RVIALS kalıbı: birebir)
+-- KRITIK: Toggle ve Main AYNI ScreenGui içinde, sıralama önemli
 ----------------------------------------------------------------
 local function buildToggleButton()
     if State.toggleButton then State.toggleButton:Destroy() end
@@ -384,11 +385,11 @@ local function buildToggleButton()
     sg.DisplayOrder = 999
     sg.Parent = CoreGui
 
-    -- RVIALS kalıbı: 75x35 sabit toggle, siyah arka plan
+    -- RVIALS kalıbı: Toggle butonu basit
     local Tgl = Instance.new("TextButton")
     Tgl.Name = "Toggle"
     Tgl.Size = UDim2.new(0, 75, 0, 35)
-    Tgl.Position = UDim2.new(0, 10, 1, -45)  -- sol alt
+    Tgl.Position = UDim2.new(0, 10, 1, -45)
     Tgl.AnchorPoint = Vector2.new(0, 0)
     Tgl.Text = "LAPEL"
     Tgl.BackgroundColor3 = Color3.fromRGB(15, 5, 5)
@@ -403,71 +404,52 @@ local function buildToggleButton()
     stroke.Color = Color3.fromRGB(180, 30, 30)
     stroke.Thickness = 1.5
 
-    -- Kilit ikonu (sürüklenebilir, kilitlenince sağ üstte)
-    local lockIcon = Instance.new("TextLabel")
-    lockIcon.Name = "LockIcon"
-    lockIcon.Size = UDim2.new(0, 22, 0, 22)
-    lockIcon.Position = UDim2.new(1, -4, 0, -4)
-    lockIcon.AnchorPoint = Vector2.new(0.5, 0.5)
-    lockIcon.BackgroundColor3 = Color3.fromRGB(180, 30, 30)
-    lockIcon.Text = "🔒"
-    lockIcon.TextColor3 = Color3.new(1, 1, 1)
-    lockIcon.Font = Enum.Font.GothamBold
-    lockIcon.TextScaled = true
-    lockIcon.Visible = false
-    lockIcon.ZIndex = 12
-    lockIcon.Parent = Tgl
-    Instance.new("UICorner", lockIcon).CornerRadius = UDim.new(1, 0)
-
     -- ============================================
-    -- ANA GUI'yi burada da oluştur ki toggle çalışsın
-    -- (main pencere kendi Draggable=true, ayrı sürüklenir)
+    -- KRITIK FIX: Main GUI'yi ÖNCE oluştur,
+    -- sonra toggle'a bağla
     -- ============================================
-    local function toggleGui()
-        if not State.mainGui then
-            buildMainGui()
-        end
-        State.mainGui.Enabled = not State.mainGui.Enabled
-        if State.mainGui.Enabled then
-            if game.PlaceId ~= Config.PLACE_ID_MM2 then
-                showOnly("gameSelect")
-            else
-                showOnly("categories")
-            end
-        end
-    end
+    -- Önce State.mainGui ve Main referansı oluştur
+    State.mainGui = sg  -- aynı ScreenGui kullan
+    
+    local Main = Instance.new("Frame")
+    Main.Name = "Main"
+    Main.Size = UDim2.new(0, 360, 0, 480)
+    Main.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Main.AnchorPoint = Vector2.new(0.5, 0.5)
+    Main.BackgroundColor3 = Color3.fromRGB(18, 8, 8)
+    Main.BorderSizePixel = 0
+    Main.Visible = false  -- Başlangıçta gizli
+    Main.Draggable = true  -- Sürüklenebilir (Roblox native)
+    Main.Active = true
+    Main.ZIndex = 5
+    Main.Parent = sg
+    Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 14)
+    local mainStroke = Instance.new("UIStroke", Main)
+    mainStroke.Color = Color3.fromRGB(180, 30, 30)
+    mainStroke.Thickness = 2
+    
+    State.mainFrame = Main
 
-    -- BASİT TIKLAMA (RVIALS kalıbı)
-    Tgl.MouseButton1Click:Connect(toggleGui)
-
-    -- Sürükleme ayrı pencere üzerinden olacak (main panelin başlık çubuğu)
-    -- Toggle tuşu sabit kalır
-
-    -- ÇİFT dokunma ile kilitleme (toggle'ı da taşımamak için)
-    local lastTap = 0
-    Tgl.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.Touch
-            or input.UserInputType == Enum.UserInputType.MouseButton1 then
-            local now = tick()
-            if now - lastTap < 0.35 then
-                State.buttonLocked = not State.buttonLocked
-                lockIcon.Visible = State.buttonLocked
-            end
-            lastTap = now
-        end
+    -- Toggle tıklama - Main.Visible toggle
+    Tgl.MouseButton1Click:Connect(function()
+        Main.Visible = not Main.Visible
     end)
+    
+    -- Ana GUI içeriğini doldur
+    populateMainGui(Main)
 
     State.toggleButton = sg
     return sg
 end
 
+-- populateMainGui: buildMainGui yerine, dışarıdan çağrılan versiyon
+-- (Main Frame zaten oluşturulmuş halde gelir)
 ----------------------------------------------------------------
--- MAIN GUI
+-- MAIN GUI (populate - Main frame dışarıdan gelir)
 ----------------------------------------------------------------
-local function buildMainGui()
-    if State.mainGui then State.mainGui:Destroy() end
-    local sg = create("ScreenGui", {
-        Name = "LapelMain",
+local function populateMainGui(mainFrame)
+    -- mainFrame zaten oluşturulmuş, sadece içini doldur
+    local sg = mainFrame.Parent  -- ScreenGui zaten var
         ResetOnSpawn = false,
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
         IgnoreGuiInset = true,
@@ -1059,7 +1041,10 @@ local function buildMainGui()
         corner(6); corner(6):Clone().Parent = s
         s.MouseButton1Click:Connect(function()
             currentLang = seg[1]
-            buildMainGui() -- dil değişti, GUI yeniden kur
+            if State.mainFrame then
+                State.mainFrame:Destroy()
+            end
+            buildToggleButton()  -- her şeyi yeniden oluştur
         end)
     end
 
