@@ -450,10 +450,6 @@ end
 local function populateMainGui(mainFrame)
     -- mainFrame zaten oluşturulmuş, sadece içini doldur
     local sg = mainFrame.Parent  -- ScreenGui zaten var
-        ResetOnSpawn = false,
-        ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-        IgnoreGuiInset = true,
-    }, CoreGui)
 
     -- Sol üstte key kalan süre
     local timer = create("TextLabel", {
