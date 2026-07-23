@@ -239,7 +239,8 @@ local function doShoot()
         if ch then for _,t in ipairs(ch:GetChildren()) do
             if t:IsA("Tool") then pcall(function() t:Activate() end) end
         end end
-        if mouse1click then pcall(mouse1click) end
+        -- mouse1click YOK: global mouse1click bazı executor'larda
+        -- yanlışlıkla butonlara tıklamayı tetikler. Sadece :Activate yeterli.
     end)
 end
 
